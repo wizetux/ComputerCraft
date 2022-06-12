@@ -11,6 +11,8 @@
 
 -- Config
 screenw,screenh = term.getSize()
+-- Which side of the pot is the turtle when facing the pot?
+turtle_side = right
 
 -- Functions
 function SaveTable(table,name)
@@ -135,27 +137,34 @@ end
 
 function retrieveFinishedItem()
   -- Assumes starting from the right of the cooking pot facing forward.
-    turtle.down()
-    turtle.turnLeft()
-    turtle.select(16)
-    turtle.dig()
-    turtle.select(1)
-    turtle.forward()
-    turtle.suckUp()
-    turtle.back()
-    turtle.select(16)
-    turtle.place()
-    turtle.select(1)
-    turtle.up()
-    turtle.turnRight()
+  turtle.down()
+  if turtle_side == "left" then turtle.turnLeft() else turtle.turnRight() end
+  turtle.select(16)
+  turtle.dig()
+  turtle.select(1)
+  turtle.forward()
+  turtle.suckUp()
+  turtle.back()
+  turtle.select(16)
+  turtle.place()
+  turtle.select(1)
+  turtle.up()
+  if turtle_side == "left" then turtle.turnRight() else turtle.turnLeft() end
 end
 
 function OrderItem()
   printRecipes()
   local input = tonumber(GetUserInput("Please make a selection: "))
   local recipe = recipes[input]
-  local chest = peripheral.wrap("right")
-  local pot = peripheral.wrap("left")
+  local chest = nil
+  local pot = nil
+  if turtle_side == "left" then
+    chest = peripheral.wrap("right")
+    pot = peripheral.wrap("left")
+  else
+    chest = peripheral.wrap("left")
+    pot = peripheral.wrap("right")
+  end
   if checkInventoryForIngredients(chest, recipe.ingredients) then
     write("Items added to the pot: ")
     for recipeDestination, ingredient in ipairs(recipe.ingredients) do
